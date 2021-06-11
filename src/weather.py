@@ -32,9 +32,9 @@ class WeatherNotifier:
                 logger.info('mean probability is %s', mean_probability)
                 msg = ''
                 if (realCondition):
-                    msg = 'Weather is {0}. '.format(realCondition['main'])
-                else:
-                    msg = 'The probability of raining is {0}. '.format(mean_probability)
+                    msg = 'The current weather is {0}. '.format(realCondition['description'])
+                else:                   
+                    msg = 'The probability of raining is  {:.0%}. '.format(mean_probability)
                 msg += 'Consider bringing an umbrella.'
                 logger.info(msg)
                 req = json.dumps({
