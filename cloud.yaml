@@ -40,11 +40,11 @@ Parameters:
     
     Atmosphere:
         Description: the group code for Atmosphere
-        Type: String
+        Type: Number
     
     Probability:
         Description: the threshold to determine if it will rain
-        Type: String
+        Type: Number
     
 Resources:
 
