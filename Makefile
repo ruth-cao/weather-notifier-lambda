@@ -25,17 +25,21 @@ lambda-function-build: clean
 deploy-layer:
 	aws s3 cp layer.zip s3://${BUCKET}/WeatherNotifierLayer.zip
 
-## create CloudFormation stack with lambda function and role.
-create-stack: 	
+# upload AWS Lambda code to S3
+deploy-code:	
 	aws s3 cp deploy.zip s3://${BUCKET}/WeatherNotifierFunction.zip
+
+## create CloudFormation stack with lambda function and role.
+create-stack:	
 	aws cloudformation create-stack --stack-name LambdaWeatherNotifier --template-body file://cloud.yaml --parameters ParameterKey=BucketName,ParameterValue=${BUCKET} ParameterKey=NotifyAlexURL,ParameterValue=${NotifyAlexURL} ParameterKey=NotifyAlexAccessCode,ParameterValue=${NotifyAlexAccessCode} ParameterKey=TopicArn,ParameterValue=${TopicArn} ParameterKey=TopicArn,ParameterValue=${TopicArn} ParameterKey=WeatherApiKey,ParameterValue=${WeatherApiKey} ParameterKey=Latitude,ParameterValue=${Latitude} ParameterKey=Longtitude,ParameterValue=${Longtitude} ParameterKey=Units,ParameterValue=${Units} ParameterKey=Atmosphere,ParameterValue=${Atmosphere} ParameterKey=Probability,ParameterValue=${Probability} --capabilities CAPABILITY_IAM
 
 ## delete existing stack
 delete-stack: 
 	aws cloudformation delete-stack --stack-name LambdaWeatherNotifier
 
-
 ## update CloudFormation stack with lambda function and role.
 update-stack: 	
-	aws s3 cp deploy.zip s3://${BUCKET}/WeatherNotifierFunction.zip
 	aws cloudformation update-stack --stack-name LambdaWeatherNotifier --template-body file://cloud.yaml --parameters ParameterKey=BucketName,ParameterValue=${BUCKET} ParameterKey=NotifyAlexURL,ParameterValue=${NotifyAlexURL} ParameterKey=NotifyAlexAccessCode,ParameterValue=${NotifyAlexAccessCode} ParameterKey=TopicArn,ParameterValue=${TopicArn} ParameterKey=TopicArn,ParameterValue=${TopicArn} ParameterKey=WeatherApiKey,ParameterValue=${WeatherApiKey} ParameterKey=Latitude,ParameterValue=${Latitude} ParameterKey=Longtitude,ParameterValue=${Longtitude} ParameterKey=Units,ParameterValue=${Units} ParameterKey=Atmosphere,ParameterValue=${Atmosphere} ParameterKey=Probability,ParameterValue=${Probability} --capabilities CAPABILITY_IAM
+
+deploy-lambda:
+	aws lambda update-function-code --function-name ${FunctionName} --s3-bucket ${BUCKET} --s3-key WeatherNotifierFunction.zip

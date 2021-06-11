@@ -23,18 +23,20 @@ class WeatherNotifier:
 
         current_weather=weather_dict['current']['weather']
         realCondition = next(filter(lambda weather: weather['id'] <= self.ATMOSPHERE, current_weather), None)
+        logger.info(realCondition)
 
         if 'hourly' in weather_dict:
             sorted_hour=sorted(weather_dict['hourly'], key=lambda hour: hour['dt'])
             mean_probability = (sorted_hour[0]['pop'] + sorted_hour[1]['pop']) / 2
+            logger.info('mean probability is %s', mean_probability)
+            
             # if current weather is not good or probability in the next two hours is higher than threshold
-            if realCondition or mean_probability >= self.PROBABILITY:
-                logger.info('mean probability is %s', mean_probability)
+            if realCondition or mean_probability >= self.PROBABILITY:                
                 msg = ''
                 if (realCondition):
                     msg = 'The current weather is {0}. '.format(realCondition['description'])
                 else:                   
-                    msg = 'The probability of raining is  {:.0%}. '.format(mean_probability)
+                    msg = 'The probability of raining is {:.0%}. '.format(mean_probability)
                 msg += 'Consider bringing an umbrella.'
                 logger.info(msg)
                 req = json.dumps({
