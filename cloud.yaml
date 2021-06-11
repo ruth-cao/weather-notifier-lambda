@@ -1,0 +1,171 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Weather Notifier Lambda function
+    
+Parameters:
+    BucketName:
+        Description: S3 Bucket
+        Type: String
+        
+    NotifyAlexURL:
+        Description: Notify Me skill URL
+        Type: String
+    
+    NotifyAlexAccessCode:
+        Description: Notify Me access code
+        Type: String
+
+    TopicArn:
+        Description: The SNS topic to send email notification
+        Type: String
+
+    WeatherApiKey:
+        Description: The api key to fetch weather forecast information
+        Type: String
+    
+    Latitude:
+        Description: Latitude of the location
+        Type: String
+    
+    Longtitude:
+        Description: Longtitude of the location
+        Type: String
+    
+    Excludes:
+        Description: the excludes parameter to query weather
+        Type: String
+    
+    Units:
+        Description: the units parameter to query weather
+        Type: String
+    
+    Atmosphere:
+        Description: the group code for Atmosphere
+        Type: Integer
+    
+    Probability:
+        Description: the threshold to determine if it will rain
+        Type: String
+    
+Resources:
+
+    WeatherNotifierFunctionRole:
+        Type: AWS::IAM::Role
+        Properties:
+            AssumeRolePolicyDocument:
+                Version: '2012-10-17'
+                Statement:
+                -   Effect: Allow
+                    Principal:
+                        Service:
+                        - lambda.amazonaws.com
+                    Action:
+                    - sts:AssumeRole
+            Policies:
+                -   PolicyName: Allow-logs
+                    PolicyDocument:
+                        Version: '2012-10-17'
+                        Statement:
+                        -   Effect: Allow
+                            Action:
+                            - 'logs:CreateLogGroup'
+                            - 'logs:CreateLogStream'
+                            - 'logs:PutLogEvents'
+                            Resource: arn:aws:logs:*:*:*   
+                -   PolicyName: BucketGetPutObject
+                    PolicyDocument:
+                        Version: '2012-10-17'
+                        Statement:
+                        -   Effect: Allow
+                            Action:
+                            - 's3:GetObject'
+                            - 's3:PutObject'
+                            Resource: 
+                                Fn::Join: ["", ["arn:aws:s3:::", Ref: "BucketName", "/*"]] 
+                -   PolicyName: Allow-sns
+                    PolicyDocument:
+                        Version: '2012-10-17'
+                        Statement:
+                        -   Effect: Allow
+                            Action:
+                            - 'sns:Publish'
+                            Resource: arn:aws:sns:*:*:*
+                
+
+    WeatherNotifierFunctionFunction:
+        Type: AWS::Lambda::Function
+        Properties:
+            Runtime: python3.9
+            Description: Function to take a screenshot of a website.
+            Handler: src/lambda_function.lambda_handler
+            Role: 
+                Fn::GetAtt: [ "WeatherNotifierFunctionRole", "Arn" ]
+            Environment:
+                Variables:
+                    PYTHONPATH: "/var/task/src:/opt/python"
+                    PATH: "/opt/bin:/opt/bin/lib"
+                    NotifyAlexURL: 
+                        Ref: NotifyAlexURL
+                    NotifyAlexAccessCode:
+                        Ref: NotifyAlexAccessCode
+                    WeatherApiKey:
+                        Ref: WeatherApiKey
+                    Latitude:
+                        Ref: Latitude
+                    Longtitude:
+                        Ref: Longtitude
+                    TopicArn:
+                        Ref: TopicArn
+                    Excludes:
+                        Ref: Excludes
+                    Units:
+                        Ref: Units
+                    Atmosphere:
+                        Ref: Atmosphere
+                    Probability:
+                        Ref: Probability
+            Timeout: 60
+            MemorySize: 1024
+            Code:
+                S3Bucket: 
+                    Ref: BucketName
+                S3Key: 
+                    Fn::Sub: 'WeatherNotifierFunction.zip'
+            Layers:
+                - Ref: WeatherNotifierLayer
+
+    WeatherNotifierLayer:
+        Type: AWS::Lambda::LayerVersion
+        Properties:
+            CompatibleRuntimes:
+                - python3.9
+            Content:
+                S3Bucket: 
+                    Ref: BucketName
+                S3Key: 
+                    Fn::Sub: 'WeatherNotifierLayer.zip'
+            Description: Layer for Python3.9
+    
+    ScheduleRule:
+        Type: AWS::Events::Rule
+        Properties:
+            Name: 'ScheduleRule'
+            Description: 'Trigger 7.30 a.m. NYT every weekday'
+            ScheduleExpression: 'cron(30 11 ? * 0-4 *)'
+            State: 'ENABLED'
+            Targets: 
+               - 
+                 Arn:
+                    Fn::GetAtt:
+                       - 'WeatherNotifierFunctionFunction'
+                       - 'Arn'
+                 Id: 'TargetFunction1'
+    PermissionForEventsToInvokeLambda:
+        Type: AWS::Lambda::Permission
+        Properties: 
+             FunctionName: !Ref WeatherNotifierFunctionFunction
+             Action: lambda:InvokeFunction
+             Principal: events.amazonaws.com
+             SourceArn: 
+                Fn::GetAtt: 
+                  - ScheduleRule
+                  - Arn
