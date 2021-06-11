@@ -1,2 +1,2 @@
 # weather-notifier-lambda
-a python script to report rainy weather. can be deployed as AWS lambda
+a python script to report rainy weather with build script to deploy it as an AWS lambda function
