@@ -91,7 +91,7 @@ Resources:
         Type: AWS::Lambda::Function
         Properties:
             Runtime: python3.8
-            Description: Function to take a screenshot of a website.
+            Description: Function to notify rainy weather.
             Handler: src/lambda_function.lambda_handler
             Role: 
                 Fn::GetAtt: [ "WeatherNotifierFunctionRole", "Arn" ]
@@ -144,7 +144,7 @@ Resources:
         Properties:
             Name: 'ScheduleRule'
             Description: 'Trigger 7.30 a.m. NYT every weekday'
-            ScheduleExpression: 'cron(30 11 ? * 2-6 *)'
+            ScheduleExpression: 'cron(30 11,16 ? * 2-6 *)'
             State: 'ENABLED'
             Targets: 
                - 
