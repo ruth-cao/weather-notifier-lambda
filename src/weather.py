@@ -14,8 +14,8 @@ class WeatherNotifier:
         self.accessCode = accessCode
         self.topicArn = topicArn
         self.weatherURL = weatherURL
-        self.ATMOSPHERE = atmosphere
-        self.PROBAILITY = probability
+        self.ATMOSPHERE = int(atmosphere)
+        self.PROBABILITY = float(probability)
     
     def notify_weather(self):
         weatherResponse=requests.post(url=self.weatherURL)
@@ -34,7 +34,7 @@ class WeatherNotifier:
                 if (realCondition):
                     msg = 'Weather is {0}. '.format(realCondition['main'])
                 else:
-                    msg = 'The probability of rainining is {0}. '.format(mean_probability)
+                    msg = 'The probability of raining is {0}. '.format(mean_probability)
                 msg += 'Consider bringing an umbrella.'
                 logger.info(msg)
                 req = json.dumps({
@@ -43,7 +43,7 @@ class WeatherNotifier:
                 })
                 response = requests.post(url = self.notifyAlexa, data = req)
                 status_code = response.status_code
-                
+
                 # if failed to publish to Alexa, send an email 
                 if status_code != 202:
                     sns = boto3.client('sns')
