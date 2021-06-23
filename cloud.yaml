@@ -66,17 +66,7 @@ Resources:
                             - 'logs:CreateLogGroup'
                             - 'logs:CreateLogStream'
                             - 'logs:PutLogEvents'
-                            Resource: arn:aws:logs:*:*:*   
-                -   PolicyName: BucketGetPutObject
-                    PolicyDocument:
-                        Version: '2012-10-17'
-                        Statement:
-                        -   Effect: Allow
-                            Action:
-                            - 's3:GetObject'
-                            - 's3:PutObject'
-                            Resource: 
-                                Fn::Join: ["", ["arn:aws:s3:::", Ref: "BucketName", "/*"]] 
+                            Resource: arn:aws:logs:*:*:*                   
                 -   PolicyName: Allow-sns
                     PolicyDocument:
                         Version: '2012-10-17'
@@ -145,7 +135,7 @@ Resources:
             Name: 'ScheduleRule'
             Description: 'Trigger 7.30 a.m. NYT every weekday'
             ScheduleExpression: 'cron(30 11,16 ? * 2-6 *)'
-            State: 'ENABLED'
+            State: 'DISABLED'
             Targets: 
                - 
                  Arn:
