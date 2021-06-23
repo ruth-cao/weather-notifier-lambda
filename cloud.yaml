@@ -118,7 +118,7 @@ Resources:
                     Probability:
                         Ref: Probability
             Timeout: 60
-            MemorySize: 1024
+            MemorySize: 256
             Code:
                 S3Bucket: 
                     Ref: BucketName
