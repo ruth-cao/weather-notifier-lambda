@@ -17,10 +17,6 @@ Parameters:
     TopicArn:
         Description: The SNS topic to send email notification
         Type: String
-
-    WeatherApiKey:
-        Description: The api key to fetch weather forecast information
-        Type: String
     
     Latitude:
         Description: Latitude of the location
@@ -93,8 +89,6 @@ Resources:
                         Ref: NotifyAlexURL
                     NotifyAlexAccessCode:
                         Ref: NotifyAlexAccessCode
-                    WeatherApiKey:
-                        Ref: WeatherApiKey
                     Latitude:
                         Ref: Latitude
                     Longtitude:

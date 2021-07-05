@@ -12,6 +12,13 @@ def lambda_handler(event, context):
     logger.info('## ENVIRONMENT VARIABLES')
     logger.info(os.environ)
 
+    apiKey = get_secret()    
+    weatherURL = 'https://api.openweathermap.org/data/2.5/onecall?lat={lat}&lon={lon}&units={units}&appid={apiKey}'.format(lat=os.environ['Latitude'], lon=os.environ['Longtitude'], units=os.environ['Units'], apiKey=apiKey)
+    notifier = WeatherNotifier(os.environ['NotifyAlexURL'], os.environ['NotifyAlexAccessCode'], os.environ['TopicArn'], weatherURL, os.environ['Atmosphere'], os.environ['Probability'])
+    notifier.notify_weather()
+
+def get_secret():
+
     secret_name = "weatherapikey"
     region_name = "us-east-1"
 
@@ -21,6 +28,11 @@ def lambda_handler(event, context):
         service_name='secretsmanager',
         region_name=region_name
     )
+
+    # In this sample we only handle the specific exceptions for the 'GetSecretValue' API.
+    # See https://docs.aws.amazon.com/secretsmanager/latest/apireference/API_GetSecretValue.html
+    # We rethrow the exception by default.
+
     try:
         get_secret_value_response = client.get_secret_value(
             SecretId=secret_name
@@ -51,11 +63,7 @@ def lambda_handler(event, context):
         # Depending on whether the secret is a string or binary, one of these fields will be populated.
         if 'SecretString' in get_secret_value_response:
             secret = get_secret_value_response['SecretString']
-            logger.info(secret)
+            return secret
         else:
             decoded_binary_secret = base64.b64decode(get_secret_value_response['SecretBinary'])
-            logger.info(decoded_binary_secret)
-    
-    weatherURL = 'https://api.openweathermap.org/data/2.5/onecall?lat={lat}&lon={lon}&units={units}&appid={apiKey}'.format(lat=os.environ['Latitude'], lon=os.environ['Longtitude'], units=os.environ['Units'], apiKey=os.environ['WeatherApiKey'])
-    notifier = WeatherNotifier(os.environ['NotifyAlexURL'], os.environ['NotifyAlexAccessCode'], os.environ['TopicArn'], weatherURL, os.environ['Atmosphere'], os.environ['Probability'])
-    notifier.notify_weather()
+            return decoded_binary_secret
