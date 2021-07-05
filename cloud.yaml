@@ -71,7 +71,18 @@ Resources:
                             Action:
                             - 'sns:Publish'
                             Resource: arn:aws:sns:*:*:*
-                
+                -   PolicyName: Allow-secret
+                    PolicyDocument:
+                        Version: '2012-10-17'
+                        Statement:
+                        -   Effect: Allow
+                            Action:
+                            - 'secretsmanager:GetResourcePolicy'
+                            - 'secretsmanager:GetSecretValue'
+                            - 'secretsmanager:DescribeSecret'
+                            - 'secretsmanager:ListSecretVersionIds'
+                            - 'secretsmanager:ListSecrets'
+                            Resource: arn:aws:secretsmanager:us-east-1:775597156514:secret:weatherapikey-AY6Uab
 
     WeatherNotifierFunction:
         Type: AWS::Lambda::Function
