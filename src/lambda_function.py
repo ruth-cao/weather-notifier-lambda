@@ -2,6 +2,7 @@ import os
 import logging
 import boto3
 import base64
+import json
 from weather import WeatherNotifier
 from botocore.exceptions import ClientError
 
@@ -12,7 +13,7 @@ def lambda_handler(event, context):
     logger.info('## ENVIRONMENT VARIABLES')
     logger.info(os.environ)
 
-    apiKey = get_secret()    
+    apiKey = json.loads(get_secret())['WeatherApiKey']
     weatherURL = 'https://api.openweathermap.org/data/2.5/onecall?lat={lat}&lon={lon}&units={units}&appid={apiKey}'.format(lat=os.environ['Latitude'], lon=os.environ['Longtitude'], units=os.environ['Units'], apiKey=apiKey)
     notifier = WeatherNotifier(os.environ['NotifyAlexURL'], os.environ['NotifyAlexAccessCode'], os.environ['TopicArn'], weatherURL, os.environ['Atmosphere'], os.environ['Probability'])
     notifier.notify_weather()
