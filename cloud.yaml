@@ -135,7 +135,7 @@ Resources:
             Name: 'ScheduleRule'
             Description: 'Trigger 7.30 a.m. NYT every weekday'
             ScheduleExpression: 'cron(30 11,16 ? * 2-6 *)'
-            State: 'DISABLED'
+            State: 'ENABLED'
             Targets: 
                - 
                  Arn:
