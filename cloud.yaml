@@ -45,7 +45,7 @@ Resources:
                         Statement:
                         -   Effect: Allow
                             Action:
-                            - 'ssm:GetParameters'
+                            - 'ssm:GetParameter'
                             Resource: arn:aws:ssm:us-east-1:775597156514:parameter/*
 
     WeatherNotifierFunction:

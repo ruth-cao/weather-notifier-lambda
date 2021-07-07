@@ -1,12 +1,8 @@
 import os
 import logging
 import boto3
-import base64
-import json
 
-from requests.api import get
 from weather import WeatherNotifier
-from botocore.exceptions import ClientError
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -20,7 +16,7 @@ def lambda_handler(event, context):
     units = get_parameter('units')
     apiKey = get_parameter('weatherapikey')
     weatherURL = 'https://api.openweathermap.org/data/2.5/onecall?lat={lat}&lon={lon}&units={units}&appid={apiKey}'.format(lat=latitude, lon=longtitude, units=units, apiKey=apiKey)
-     
+
     notifyMeURL = get_parameter('notifyMeURL')
     notifyMeAccessCode = get_parameter('notifyMeAccessCode')
     topicArn = get_parameter('topicArn')
