@@ -5,39 +5,7 @@ Parameters:
     BucketName:
         Description: S3 Bucket
         Type: String
-        
-    NotifyAlexURL:
-        Description: Notify Me skill URL
-        Type: String
-    
-    NotifyAlexAccessCode:
-        Description: Notify Me access code
-        Type: String
 
-    TopicArn:
-        Description: The SNS topic to send email notification
-        Type: String
-    
-    Latitude:
-        Description: Latitude of the location
-        Type: String
-    
-    Longtitude:
-        Description: Longtitude of the location
-        Type: String
-    
-    Units:
-        Description: the units parameter to query weather
-        Type: String
-    
-    Atmosphere:
-        Description: the group code for Atmosphere
-        Type: Number
-    
-    Probability:
-        Description: the threshold to determine if it will rain
-        Type: Number
-    
 Resources:
 
     WeatherNotifierFunctionRole:
@@ -71,18 +39,14 @@ Resources:
                             Action:
                             - 'sns:Publish'
                             Resource: arn:aws:sns:*:*:*
-                -   PolicyName: Allow-secret
+                -   PolicyName: Allow-parameter
                     PolicyDocument:
                         Version: '2012-10-17'
                         Statement:
                         -   Effect: Allow
                             Action:
-                            - 'secretsmanager:GetResourcePolicy'
-                            - 'secretsmanager:GetSecretValue'
-                            - 'secretsmanager:DescribeSecret'
-                            - 'secretsmanager:ListSecretVersionIds'
-                            - 'secretsmanager:ListSecrets'
-                            Resource: arn:aws:secretsmanager:us-east-1:775597156514:secret:weatherapikey-AY6Uab
+                            - 'ssm:GetParameters'
+                            Resource: arn:aws:ssm:us-east-1:775597156514:parameter/*
 
     WeatherNotifierFunction:
         Type: AWS::Lambda::Function
@@ -95,23 +59,7 @@ Resources:
             Environment:
                 Variables:
                     PYTHONPATH: "/var/task/src:/opt/python"
-                    PATH: "/opt/bin:/opt/bin/lib"
-                    NotifyAlexURL: 
-                        Ref: NotifyAlexURL
-                    NotifyAlexAccessCode:
-                        Ref: NotifyAlexAccessCode
-                    Latitude:
-                        Ref: Latitude
-                    Longtitude:
-                        Ref: Longtitude
-                    TopicArn:
-                        Ref: TopicArn
-                    Units:
-                        Ref: Units
-                    Atmosphere:
-                        Ref: Atmosphere
-                    Probability:
-                        Ref: Probability
+                    PATH: "/opt/bin:/opt/bin/lib"                    
             Timeout: 60
             MemorySize: 256
             Code:
